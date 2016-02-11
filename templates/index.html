@@ -5,7 +5,10 @@
     <!--<link rel="stylesheet" href="" type="text/css" media="screen" />-->
     <script language="javascript" src="//code.jquery.com/jquery-2.2.0.min.js"></script>
     <script language="javascript" src="../static/wavesurfer.js/dist/wavesurfer.min.js"></script>
+    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.timeline.js"></script>
+    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.regions.js"></script>
     <script language="javascript" src="../static/js/main.js"></script>
+    <link language="javascript" rel="stylesheet" href="../static/css/main.css"></link>
   </head>
 
   <body>
@@ -14,11 +17,18 @@
     </header>
     <main>
       <section id="main">
-        <form method="post">
+        <form class="download-form" method="post">
           <input id="url" name="url" value="" placeholder="Coller ici le lien" />
         </form>
-        <div class="wavesurfer">
-        </div>
+        <div class="wavesurfer"></div>
+        <div class="wavesurfer-timeline"></div>
+        <button class="hidden toggle-play">Play / Pause</button>
+        <form class="cut-form hidden" method="post">
+          <input name="media-name" id="media-name" type="hidden" value="" />
+          <input name="start" id="start" value="" placeholder="Début" />
+          <input name="stop" id="stop" value="" placeholder="Fin" />
+          <input type="submit" id="submit" name="submit" value="Valider" />
+        </form>
       </section>
     </main>
   </body>

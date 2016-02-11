@@ -13,7 +13,8 @@ log.setLevel(20)
 
 server = Application(
     static_path=os.path.join(os.path.dirname(__file__), "static"),
-    template_path=os.path.join(os.path.dirname(__file__), "templates"))
+    template_path=os.path.join(os.path.dirname(__file__), "templates"),
+    debug=True)
 
 from wdb.ext import wdb_tornado
 wdb_tornado(server, start_disabled=True)
@@ -45,11 +46,33 @@ class MainHandler(RequestHandler):
         path = os.path.join(
             os.path.dirname(__file__), 'static', 'downloads',
             '%(title)s.%(ext)s')
-        out = subprocess.run(
-            ['youtube-dl', url, '-f', '140', '-o', path,
-             '--print-json'], stdout=subprocess.PIPE)
-        out = json.loads(out.stdout.decode('utf-8'))
-        self.write(json_encode(out['title'] + '.' + out['ext']))
+        cut_path = os.path.join(
+            os.path.dirname(__file__), 'static', 'downloads',
+            '%(title)s_cut.%(ext)s')
+        if url:
+            out = subprocess.run(
+                ['youtube-dl', url, '-f', '140', '-o', path,
+                 '--print-json'], stdout=subprocess.PIPE)
+            out = json.loads(out.stdout.decode('utf-8'))
+            self.write(json_encode(out['title'] + '.' + out['ext']))
+            self.finish()
+        title = self.get_argument('media-name').split('.')[0]
+        media_name = dict(title=title, ext='m4a')
+        cut_media_name = dict(title=title, ext='mp3')
+        filename = path % media_name
+        cut_filename = cut_path % cut_media_name
+        start = '00:00:10'
+        stop = '00:01:10'
+        subprocess.run(
+            ['ffmpeg', '-i', filename, '-ss', start, '-t', stop,
+             '-codec:a', 'libmp3lame', '-qscale:a', '3', cut_filename])
+        with open(cut_filename, "rb") as f:
+            song = f.read()
+
+        self.set_header('Content-Type', 'audio/mpeg')
+        self.set_header(
+            'Content-Disposition', 'attachment; filename=%s' % cut_filename)
+        self.write(song)
 
 
 if __name__ == "__main__":
