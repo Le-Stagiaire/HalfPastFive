@@ -54,18 +54,25 @@ class MainHandler(RequestHandler):
                 ['youtube-dl', url, '-f', '140', '-o', path,
                  '--print-json'], stdout=subprocess.PIPE)
             out = json.loads(out.stdout.decode('utf-8'))
-            self.write(json_encode(out['title'] + '.' + out['ext']))
             self.finish()
         title = self.get_argument('media-name').split('.')[0]
+        start = map(int, self.get_argument('start').split(':'))
+        delay = map(int, self.get_argument('stop').split(':'))
+        stop = []
+        for start_time, stop_time in zip(start, delay):
+            if stop_time < start_time and all([bool(t == 0) for t in stop]):
+                self.write(json_encode('Stop avant start'))
+                self.finish()
+            stop.append(stop_time - start_time)
+        stop = '%0.2d:%0.2d:%0.2d' % (stop[0], stop[1], stop[2])
         media_name = dict(title=title, ext='m4a')
         cut_media_name = dict(title=title, ext='mp3')
         filename = path % media_name
         cut_filename = cut_path % cut_media_name
-        start = '00:00:10'
-        stop = '00:01:10'
         subprocess.run(
-            ['ffmpeg', '-i', filename, '-ss', start, '-t', stop,
-             '-codec:a', 'libmp3lame', '-qscale:a', '3', cut_filename])
+            ['ffmpeg', '-i', filename, '-ss', self.get_argument('start'),
+             '-t', stop, '-codec:a', 'libmp3lame', '-qscale:a', '3',
+             cut_filename])
         with open(cut_filename, "rb") as f:
             song = f.read()
 
