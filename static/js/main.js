@@ -1,4 +1,4 @@
-$(document).ready(function() {
+(function() {
 
   // First create a wavesurfer instance
   var wavesurfer = Object.create(WaveSurfer);
@@ -11,11 +11,11 @@ $(document).ready(function() {
     container: ".wavesurfer-timeline"
   });
 
-  $(".toggle-play").on('click', function() {
+  document.querySelector(".toggle-play").addEventListner('click', function() {
     wavesurfer.playPause();
   });
 
-  $('.download-form').on('submit', function(e) {
+  document.querySelector('.download-form').addEventListener('submit', function(e) {
     e.preventDefault();
     $.post(
       $(e.target).attr('action'), $(e.target).serialize(), function(response) {
@@ -24,4 +24,4 @@ $(document).ready(function() {
         $('.cut-form').find('#media-name').val(response)
     });
   });
-});
+})();
