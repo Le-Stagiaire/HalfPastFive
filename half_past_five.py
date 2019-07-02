@@ -1,6 +1,7 @@
 from logging import getLogger
 from tornado.web import Application, RequestHandler, url as hpf_url
 from tornado.escape import json_encode
+from wdb.ext import wdb_tornado
 
 import json
 import os
@@ -16,8 +17,7 @@ server = Application(
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
     debug=True)
 
-from wdb.ext import wdb_tornado
-wdb_tornado(server, start_disabled=True)
+# wdb_tornado(server, start_disabled=True)
 
 
 class url(object):
