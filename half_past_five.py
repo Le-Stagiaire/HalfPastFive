@@ -43,18 +43,27 @@ class MainHandler(RequestHandler):
     def post(self):
         self.set_header('Content-Type', 'application/json')
         url = self.get_argument('url', '')
-        path = os.path.join(
+        download_path = os.path.join(
+            os.path.dirname(__file__), 'static', 'downloads',
+            '%(title)s.%(ext)s')
+        out = subprocess.run(
+            ['youtube-dl', url, '-f', '140', '-o', download_path,
+             '--print-json'], stdout=subprocess.PIPE)
+        out = json.loads(out.stdout.decode('utf-8'))
+        self.write(out['_filename'])
+        self.finish()
+
+
+@url(r'/crop_and_download')
+class CropHandler(RequestHandler):
+
+    def post(self):
+        download_path = os.path.join(
             os.path.dirname(__file__), 'static', 'downloads',
             '%(title)s.%(ext)s')
         cut_path = os.path.join(
             os.path.dirname(__file__), 'static', 'downloads',
             '%(title)s_cut.%(ext)s')
-        if url:
-            out = subprocess.run(
-                ['youtube-dl', url, '-f', '140', '-o', path,
-                 '--print-json'], stdout=subprocess.PIPE)
-            out = json.loads(out.stdout.decode('utf-8'))
-            self.finish()
         title = self.get_argument('media-name').split('.')[0]
         start = map(int, self.get_argument('start').split(':'))
         delay = map(int, self.get_argument('stop').split(':'))
@@ -67,7 +76,7 @@ class MainHandler(RequestHandler):
         stop = '%0.2d:%0.2d:%0.2d' % (stop[0], stop[1], stop[2])
         media_name = dict(title=title, ext='m4a')
         cut_media_name = dict(title=title, ext='mp3')
-        filename = path % media_name
+        filename = download_path % media_name
         cut_filename = cut_path % cut_media_name
         subprocess.run(
             ['ffmpeg', '-i', filename, '-ss', self.get_argument('start'),
