@@ -1,4 +1,12 @@
 (function() {
+  // utils for formatting time gathered on region
+  var formatTime = function(time) {
+    return [
+      Math.floor((time % 3600) / 60), // minutes
+      ("00" + Math.floor(time % 60)).slice(-2) // seconds
+    ].join(":");
+  };
+
   // First create a wavesurfer instance
   var wavesurfer = WaveSurfer.create({
     container: ".wavesurfer",
@@ -7,7 +15,7 @@
   });
 
   wavesurfer.on("ready", function() {
-    wavesurfer.enableDragSelection({});
+    wavesurfer.enableDragSelection({ drag: false });
     var timeline = Object.create(WaveSurfer.Timeline);
     timeline.init({
       wavesurfer: wavesurfer,
@@ -17,6 +25,15 @@
 
   document.querySelector(".toggle-play").addEventListener("click", function() {
     wavesurfer.playPause();
+  });
+
+  wavesurfer.on("region-created", function(region) {
+    document
+      .querySelector("#start")
+      .setAttribute("value", formatTime(region["start"]));
+    document
+      .querySelector("#stop")
+      .setAttribute("value", formatTime(region["end"]));
   });
 
   document
