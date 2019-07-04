@@ -10,11 +10,11 @@ function init() {
     plugins: [WaveSurfer.regions.create({ drag: false })]
   });
 
-  wavesurfer.on("ready", function() {
+  wavesurfer.on("ready", () => {
     wavesurfer.enableDragSelection({ drag: false });
   });
 
-  document.querySelector(".toggle-play").addEventListener("click", function() {
+  document.querySelector(".toggle-play").addEventListener("click", () => {
     wavesurfer.playPause();
   });
   document.body.onkeyup = function(e) {
@@ -23,11 +23,11 @@ function init() {
     }
   };
 
-  wavesurfer.on("region-created", function(region) {
+  wavesurfer.on("region-created", region => {
     wavesurfer.clearRegions();
   });
 
-  wavesurfer.on("region-update-end", function(region) {
+  wavesurfer.on("region-update-end", region => {
     const start = formatTime(region["start"]);
     const end = formatTime(region["end"]);
     const [minute_start, second_start] = start.split(":");
@@ -39,32 +39,27 @@ function init() {
     wavesurfer.seekTo(region["start"] / wavesurfer.getDuration());
   });
 
-  document
-    .querySelector(".download-form")
-    .addEventListener("submit", function(e) {
-      e.preventDefault();
-      const xhttp = new XMLHttpRequest();
-      xhttp.open("POST", "/", true);
-      xhttp.setRequestHeader(
-        "Content-type",
-        "application/x-www-form-urlencoded"
-      );
-      const params = "url=" + e.target.elements["url"].value;
+  document.querySelector(".download-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    const params = "url=" + e.target.elements["url"].value;
 
-      xhttp.onreadystatechange = () => {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-          const response = xhttp.response;
-          console.log(response);
-          wavesurfer.load("/" + response);
-          document.querySelectorAll(".hidden").forEach(el => {
-            el.classList.remove("hidden");
-          });
-          document.querySelector("#media-name").setAttribute("value", response);
-        }
-      };
+    xhttp.onreadystatechange = () => {
+      if (xhttp.readyState == 4 && xhttp.status == 200) {
+        const response = xhttp.response;
+        console.log(response);
+        wavesurfer.load("/" + response);
+        document.querySelectorAll(".hidden").forEach(el => {
+          el.classList.remove("hidden");
+        });
+        document.querySelector("#media-name").setAttribute("value", response);
+      }
+    };
 
-      xhttp.send(params);
-    });
+    xhttp.send(params);
+  });
 }
 
 // utils for formatting time gathered on region
