@@ -1,7 +1,12 @@
-.wavesurfer {
-  background: black;
-}
-
 .hidden {
   display: none;
+}
+
+.inputs-start,
+.inputs-end {
+  float: left;
+}
+
+.timer-input {
+  width: 10%;
 }
