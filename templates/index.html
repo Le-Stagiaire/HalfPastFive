@@ -2,14 +2,13 @@
   <head>
     <meta charset="utf-8" />
     <title>Half Past Five</title>
-    <!--<link rel="stylesheet" href="" type="text/css" media="screen" />-->
-    <script language="javascript" src="../static/wavesurfer.js/dist/wavesurfer.min.js"></script>
-    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.timeline.js"></script>
-    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.regions.js"></script>
+    <script language="javascript" src="../static/wavesurfer.js/wavesurfer.min.js"></script>
+    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.regions.min.js"></script>
+    <script language="javascript" src="../static/js/main.js"></script>
     <link rel="stylesheet" type="text/css" href="../static/css/main.css"></link>
   </head>
 
-  <body>
+  <body onload="init();">
     <header>
       <h1 id="title">Half Past Five</h1>
     </header>
@@ -22,14 +21,22 @@
         <div class="wavesurfer"></div>
         <div class="wavesurfer-timeline"></div>
         <button class="hidden toggle-play">Play / Pause</button>
-        <form class="cut-form hidden" method="post">
+        <button class="hidden remove-region" onClick="removeRegion();">Supprimer la sélection</button>
+        <form class="cut-form" method="post" action="/crop_and_download">
           <input name="media-name" id="media-name" type="hidden" value="" />
-          <input name="start" id="start" value="" placeholder="Début" />
-          <input name="stop" id="stop" value="" placeholder="Fin" />
-          <input type="submit" id="submit" name="submit" value="Valider" />
+          <div class="inputs-start">
+            Début
+            <input class="timer-input" name="minute-start" id="minute-start" value="00" type="number" /> :
+            <input class="timer-input" name="second-start" id="second-start" value="00" type="number" />
+          </div>
+          <div class="inputs-end">
+            Fin
+            <input class="timer-input" name="minute-end" id="minute-end" value="00" type="number" /> :
+            <input class="timer-input" name="second-end" id="second-end" value="00" type="number" />
+          </div>
+          <input type="submit" id="submit" name="submit" value="Enregistrer la sélection" />
         </form>
       </section>
     </main>
   </body>
-  <script language="javascript" src="../static/js/main.js"></script>
 </html>
