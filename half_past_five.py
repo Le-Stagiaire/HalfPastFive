@@ -88,9 +88,9 @@ class CropHandler(RequestHandler):
             int(timedelta_delay.seconds / 60), timedelta_delay.seconds % 60)
 
         # get audio and crop-audio filenames
-        title = self.get_argument('media-name').split('.')[0][len('static/downloads/'):]
         audio_filename = self.get_argument('media-name')
-        cut_filename = '{}_cut.{}'.format(title, 'mp3')
+        audio_title = audio_filename.split('.')[0]
+        cut_filename = '{}_cut.{}'.format(audio_title, 'mp3')
 
         # crop the audio
         subprocess.run(
@@ -100,10 +100,14 @@ class CropHandler(RequestHandler):
 
         with open(cut_filename, "rb") as f:
             song = f.read()
-
+        os.remove(audio_filename)
+        os.remove(cut_filename)
         self.set_header('Content-Type', 'audio/mpeg')
         self.set_header(
-            'Content-Disposition', 'attachment; filename=%s' % cut_filename)
+            'Content-Disposition', 'attachment; filename=%s' % (
+                cut_filename[len('static/downloads/'):]
+            )
+        )
         self.write(song)
 
 
