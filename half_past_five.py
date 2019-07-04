@@ -1,7 +1,7 @@
+from datetime import timedelta
 from logging import getLogger
 from tornado.web import Application, RequestHandler, url as hpf_url
 from tornado.escape import json_encode
-from wdb.ext import wdb_tornado
 
 import json
 import os
@@ -44,8 +44,7 @@ class MainHandler(RequestHandler):
         self.set_header('Content-Type', 'application/json')
         url = self.get_argument('url', '')
         download_path = os.path.join(
-            os.path.dirname(__file__), 'static', 'downloads',
-            '%(title)s.%(ext)s')
+            'static', 'downloads', '%(title)s.%(ext)s')
         out = subprocess.run(
             ['youtube-dl', url, '-f', '140', '-o', download_path,
              '--print-json'], stdout=subprocess.PIPE)
@@ -58,30 +57,47 @@ class MainHandler(RequestHandler):
 class CropHandler(RequestHandler):
 
     def post(self):
-        download_path = os.path.join(
-            os.path.dirname(__file__), 'static', 'downloads',
-            '%(title)s.%(ext)s')
-        cut_path = os.path.join(
-            os.path.dirname(__file__), 'static', 'downloads',
-            '%(title)s_cut.%(ext)s')
-        title = self.get_argument('media-name').split('.')[0]
-        start = map(int, self.get_argument('start').split(':'))
-        delay = map(int, self.get_argument('stop').split(':'))
-        stop = []
-        for start_time, stop_time in zip(start, delay):
-            if stop_time < start_time and all([bool(t == 0) for t in stop]):
-                self.write(json_encode('Stop avant start'))
-                self.finish()
-            stop.append(stop_time - start_time)
-        stop = '%0.2d:%0.2d:%0.2d' % (stop[0], stop[1], stop[2])
-        media_name = dict(title=title, ext='m4a')
-        cut_media_name = dict(title=title, ext='mp3')
-        filename = download_path % media_name
-        cut_filename = cut_path % cut_media_name
+        # Extract start and end from form params
+        start = [
+            int(time) for time in [
+                self.get_argument('minute-start'),
+                self.get_argument('second-start')
+            ]
+        ]
+        end = [
+            int(time) for time in [
+                self.get_argument('minute-end'),
+                self.get_argument('second-end')
+            ]
+        ]
+        # ffmpeg need a delay instead of a end position
+        # ex : start = 0:15 and end = 1:45 means
+        # we need to pass start = 0:15 and stop = 1:30 to ffmpeg
+        ffmpeg_delay = []
+        timedelta_start = timedelta(minutes=start[0], seconds=start[1])
+        timedelta_end = timedelta(minutes=end[0], seconds=end[1])
+        if timedelta_end == timedelta_start:
+            self.write(json_encode('Pas de sélection'))
+            self.finish()
+        elif timedelta_end < timedelta_start:
+            self.write(json_encode('Stop avant start'))
+            self.finish()
+        timedelta_delay = timedelta_end - timedelta_start
+        ffmpeg_start = '%0.2d:%0.2d' % (start[0], start[1])
+        ffmpeg_delay = '%0.2d:%0.2d' % (
+            int(timedelta_delay.seconds / 60), timedelta_delay.seconds % 60)
+
+        # get audio and crop-audio filenames
+        title = self.get_argument('media-name').split('.')[0][len('static/downloads/'):]
+        audio_filename = self.get_argument('media-name')
+        cut_filename = '{}_cut.{}'.format(title, 'mp3')
+
+        # crop the audio
         subprocess.run(
-            ['ffmpeg', '-i', filename, '-ss', self.get_argument('start'),
-             '-t', stop, '-codec:a', 'libmp3lame', '-qscale:a', '3',
+            ['ffmpeg', '-i', audio_filename, '-ss', ffmpeg_start,
+             '-t', ffmpeg_delay, '-codec:a', 'libmp3lame', '-qscale:a', '3',
              cut_filename])
+
         with open(cut_filename, "rb") as f:
             song = f.read()
 
