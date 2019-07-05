@@ -4,6 +4,7 @@
     <title>Half Past Five</title>
     <script language="javascript" src="../static/wavesurfer.js/wavesurfer.min.js"></script>
     <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.regions.min.js"></script>
+    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.timeline.min.js"></script>
     <script language="javascript" src="../static/js/main.js"></script>
     <link rel="stylesheet" type="text/css" href="../static/css/main.css"></link>
   </head>
@@ -18,11 +19,12 @@
           <input id="url" name="url" value="" placeholder="Coller ici le lien" />
           <input type="submit" value="Valider">
         </form>
-        <div class="wavesurfer"></div>
-        <div class="wavesurfer-timeline"></div>
+        <div class="wavesurfer-wrapper"></div>
+        <div class="wavesurfer-timeline-wrapper"></div>
+        <div class="wavesurfer-selection hidden">Sélection <div class="wavesurfer-selection-wrapper"></div></div>
         <button class="hidden toggle-play">Play / Pause</button>
         <button class="hidden remove-region" onClick="removeRegion();">Supprimer la sélection</button>
-        <form class="cut-form" method="post" action="/crop_and_download">
+        <form class="cut-form hidden" method="post" action="/crop_and_download">
           <input name="media-name" id="media-name" type="hidden" value="" />
           <div class="inputs-start">
             Début
