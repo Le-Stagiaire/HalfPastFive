@@ -23,6 +23,10 @@ function init() {
     }
   };
 
+  wavesurfer.drawer.on("click", region => {
+    wavesurfer.clearRegions();
+  });
+
   wavesurfer.on("region-created", region => {
     wavesurfer.clearRegions();
   });
