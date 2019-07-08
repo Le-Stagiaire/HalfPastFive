@@ -15,23 +15,31 @@
     </header>
     <main>
       <section id="main">
-        <form class="download-form" method="post">
+        <form id="download-form" method="post">
           <input id="url" name="url" value="" placeholder="Coller ici le lien" />
           <input type="submit" value="Valider">
         </form>
-        <div class="wavesurfer-wrapper"></div>
-        <div class="wavesurfer-timeline-wrapper"></div>
-        <div class="wavesurfer-selection hidden">Sélection <div class="wavesurfer-selection-wrapper"></div></div>
-        <button class="hidden toggle-play">Play / Pause</button>
-        <button class="hidden remove-region" onClick="removeRegion();">Supprimer la sélection</button>
-        <form class="cut-form hidden" method="post" action="/crop_and_download">
+        <div id="video-infos">
+          <span id="video-title"></span>
+          <img id="video-thumbnail" src="" />
+        </div>
+        <div id="wavesurfer-wrapper"></div>
+        <div id="wavesurfer-timeline-wrapper"></div>
+        <div id="wavesurfer-selection" class="hidden">
+          Sélection
+          <div id="wavesurfer-selection-wrapper"></div>
+          <div id="wavesurfer-selection-timeline-wrapper"></div>
+        </div>
+        <button class="hidden" id="toggle-play">Play / Pause</button>
+        <button class="hidden" id="remove-region" onClick="removeRegion();">Supprimer la sélection</button>
+        <form id="cut-form" class="hidden" method="post" action="/crop_and_download">
           <input name="media-name" id="media-name" type="hidden" value="" />
-          <div class="inputs-start">
+          <div id="inputs-start">
             Début
             <input class="timer-input" name="minute-start" id="minute-start" value="00" type="number" /> :
             <input class="timer-input" name="second-start" id="second-start" value="00" type="number" />
           </div>
-          <div class="inputs-end">
+          <div id="inputs-end">
             Fin
             <input class="timer-input" name="minute-end" id="minute-end" value="00" type="number" /> :
             <input class="timer-input" name="second-end" id="second-end" value="00" type="number" />

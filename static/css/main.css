@@ -2,8 +2,8 @@
   display: none;
 }
 
-.inputs-start,
-.inputs-end {
+#inputs-start,
+#inputs-end {
   float: left;
 }
 
