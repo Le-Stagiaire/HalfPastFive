@@ -112,10 +112,15 @@ function init() {
         document
           .getElementById("video-thumbnail")
           .setAttribute("src", response.thumbnail);
+        document
+          .getElementById("video-link")
+          .setAttribute("href", response.webpage_url);
         document.querySelectorAll(".hidden").forEach(el => {
           el.classList.remove("hidden");
         });
-        document.getElementById("media-name").setAttribute("value", response);
+        document
+          .getElementById("media-name")
+          .setAttribute("value", response._filename);
       }
     };
 
