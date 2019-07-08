@@ -49,7 +49,7 @@ class MainHandler(RequestHandler):
             ['youtube-dl', url, '-f', '140', '-o', download_path,
              '--print-json'], stdout=subprocess.PIPE)
         out = json.loads(out.stdout.decode('utf-8'))
-        self.write(out['_filename'])
+        self.write(out)
         self.finish()
 
 
