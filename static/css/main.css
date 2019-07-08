@@ -2,6 +2,10 @@
   display: none;
 }
 
+#video-thumbnail {
+  width: 30%;
+}
+
 #inputs-start,
 #inputs-end {
   float: left;
