@@ -6,13 +6,13 @@ var focusedWavesurfer;
 function init() {
   // First create a wavesurfer instance
   wavesurfer = WaveSurfer.create({
-    container: ".wavesurfer-wrapper",
+    container: "#wavesurfer-wrapper",
     waveColor: "red",
     progressColor: "#ff0000",
     plugins: [
       WaveSurfer.regions.create({ drag: false }),
       WaveSurfer.timeline.create({
-        container: ".wavesurfer-timeline-wrapper"
+        container: "#wavesurfer-timeline-wrapper"
       })
     ]
   });
@@ -22,7 +22,7 @@ function init() {
     focusedWavesurfer = wavesurfer;
   });
 
-  document.querySelector(".toggle-play").addEventListener("click", () => {
+  document.getElementById("toggle-play").addEventListener("click", () => {
     focusedWavesurfer.playPause();
   });
   document.body.onkeyup = function(e) {
@@ -48,40 +48,48 @@ function init() {
     const end = formatTime(region["end"]);
     const [minuteStart, secondStart] = start.split(":");
     const [minuteEnd, secondEnd] = end.split(":");
-    document.querySelector("#minute-start").setAttribute("value", minuteStart);
-    document.querySelector("#second-start").setAttribute("value", secondStart);
-    document.querySelector("#minute-end").setAttribute("value", minuteEnd);
-    document.querySelector("#second-end").setAttribute("value", secondEnd);
+    document.getElementById("minute-start").setAttribute("value", minuteStart);
+    document.getElementById("second-start").setAttribute("value", secondStart);
+    document.getElementById("minute-end").setAttribute("value", minuteEnd);
+    document.getElementById("second-end").setAttribute("value", secondEnd);
     // move cursor to the regions's start
     wavesurfer.seekTo(region["start"] / wavesurfer.getDuration());
 
+    // Extract audio from region to create a new wavesurfer for the selection
     var originalBuffer = wavesurfer.backend.buffer;
+    var newBufferLength =
+      (region.end - region.start) * originalBuffer.sampleRate;
     var newBuffer = wavesurfer.backend.ac.createBuffer(
       originalBuffer.numberOfChannels,
-      originalBuffer.length,
+      newBufferLength,
       originalBuffer.sampleRate
     );
 
-    var firstListIndex = region.start * originalBuffer.sampleRate;
-    var secondListIndex = region.end * originalBuffer.sampleRate;
-    var secondListMemAlloc =
-      originalBuffer.length - region.end * originalBuffer.sampleRate;
+    // Copy each canal audio
+    for (var canal = 0; canal < newBuffer.numberOfChannels; canal++) {
+      // Create an array with the size of our audio selection
+      var newBufferAudioContent = new Float32Array(newBufferLength);
+      // Fill this array with the audio content
+      // starting from the beginning of our selection.
+      // The size of our array will determine when we stop the copy
+      // since its length is the size of our selection.
+      originalBuffer.copyFromChannel(
+        newBufferAudioContent,
+        canal,
+        region.start * originalBuffer.sampleRate
+      );
+      newBuffer.copyToChannel(newBufferAudioContent, canal);
+    }
 
-    var newList = new Float32Array(parseInt(firstListIndex));
-    var secondList = new Float32Array(parseInt(secondListMemAlloc));
-    var combined = new Float32Array(originalBuffer.length);
-
-    originalBuffer.copyFromChannel(newList, 0);
-    originalBuffer.copyFromChannel(secondList, 0, secondListIndex);
-
-    combined.set(newList);
-    combined.set(secondList, firstListIndex);
-
-    newBuffer.copyToChannel(combined, 0);
     wavesurferSelection = WaveSurfer.create({
-      container: ".wavesurfer-selection-wrapper",
+      container: "#wavesurfer-selection-wrapper",
       waveColor: "red",
-      progressColor: "#ff0000"
+      progressColor: "#ff0000",
+      plugins: [
+        WaveSurfer.timeline.create({
+          container: "#wavesurfer-selection-timeline-wrapper"
+        })
+      ]
     });
     wavesurferSelection.loadDecodedBuffer(newBuffer);
     wavesurferSelection.drawer.on("click", region => {
@@ -89,7 +97,7 @@ function init() {
     });
   });
 
-  document.querySelector(".download-form").addEventListener("submit", e => {
+  document.getElementById("download-form").addEventListener("submit", e => {
     e.preventDefault();
     const xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/", true);
@@ -98,13 +106,16 @@ function init() {
 
     xhttp.onreadystatechange = () => {
       if (xhttp.readyState == 4 && xhttp.status == 200) {
-        const response = xhttp.response;
-        console.log(response);
-        wavesurfer.load("/" + response);
+        const response = JSON.parse(xhttp.response);
+        wavesurfer.load("/" + response._filename);
+        document.getElementById("video-title").textContent = response.title;
+        document
+          .getElementById("video-thumbnail")
+          .setAttribute("src", response.thumbnail);
         document.querySelectorAll(".hidden").forEach(el => {
           el.classList.remove("hidden");
         });
-        document.querySelector("#media-name").setAttribute("value", response);
+        document.getElementById("media-name").setAttribute("value", response);
       }
     };
 
@@ -125,8 +136,8 @@ function removeRegion() {
   wavesurfer.clearRegions();
   wavesurferSelection.destroy();
   wavesurfer.seekTo(0);
-  document.querySelector("#minute-start").setAttribute("value", "00");
-  document.querySelector("#second-start").setAttribute("value", "00");
-  document.querySelector("#minute-end").setAttribute("value", "00");
-  document.querySelector("#second-end").setAttribute("value", "00");
+  document.getElementById("minute-start").setAttribute("value", "00");
+  document.getElementById("second-start").setAttribute("value", "00");
+  document.getElementById("minute-end").setAttribute("value", "00");
+  document.getElementById("second-end").setAttribute("value", "00");
 }
