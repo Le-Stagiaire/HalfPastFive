@@ -1,7 +1,6 @@
 var wavesurfer;
-var wavesurferSelection;
-var region;
-var focusedWavesurfer;
+var wavesurferRegion;
+var scale = 1;
 
 function init() {
   // First create a wavesurfer instance
@@ -10,7 +9,7 @@ function init() {
     waveColor: "red",
     progressColor: "#ff0000",
     plugins: [
-      WaveSurfer.regions.create({ drag: false }),
+      WaveSurfer.regions.create({ id: "region", drag: false }),
       WaveSurfer.timeline.create({
         container: "#wavesurfer-timeline-wrapper"
       })
@@ -19,21 +18,46 @@ function init() {
 
   wavesurfer.on("ready", () => {
     wavesurfer.enableDragSelection({ drag: false });
-    focusedWavesurfer = wavesurfer;
   });
 
   document.getElementById("toggle-play").addEventListener("click", () => {
-    focusedWavesurfer.playPause();
+    wavesurfer.playPause();
   });
   document.body.onkeyup = function(e) {
     if (e.keyCode == 32) {
-      focusedWavesurfer.playPause();
+      wavesurfer.playPause();
+    }
+  };
+  document.body.onkeydown = function(e) {
+    if (e.keyCode == 37 && wavesurferRegion) {
+      wavesurferRegion.onResize(-0.1 * wavesurfer.params.minPxPerSec, "start");
+      wavesurfer.seekTo(wavesurferRegion["start"] / wavesurfer.getDuration());
+    }
+    if (e.keyCode == 39 && wavesurferRegion) {
+      wavesurferRegion.onResize(0.5);
     }
   };
 
-  wavesurfer.drawer.on("click", region => {
-    wavesurfer.clearRegions();
-    focusedWavesurfer = wavesurfer;
+  wavesurfer.on("play", () => {
+    let current = wavesurfer.getCurrentTime();
+    if (inBetweenRegion(current)) {
+      wavesurferRegion.on("out", regionOut);
+    } else {
+      wavesurfer.un("out");
+    }
+  });
+
+  document.querySelector("#wavesurfer-wrapper").onwheel = e => {
+    e.preventDefault();
+    scale = scale + (-e.deltaY > 0 ? 1 : -1);
+    scale = Math.min(Math.max(5, scale), 200);
+    wavesurfer.zoom(scale);
+  };
+
+  wavesurfer.on("seek", position => {
+    if (!inBetweenRegion(position * wavesurfer.getDuration())) {
+      wavesurfer.clearRegions();
+    }
   });
 
   wavesurfer.on("region-created", region => {
@@ -41,9 +65,8 @@ function init() {
   });
 
   wavesurfer.on("region-update-end", region => {
-    // First remove previous wavesurferSelection
-    wavesurferSelection && wavesurferSelection.destroy();
     // Update inputs for from post
+    wavesurferRegion = region;
     const start = formatTime(region["start"]);
     const end = formatTime(region["end"]);
     const [minuteStart, secondStart] = start.split(":");
@@ -54,6 +77,10 @@ function init() {
     document.getElementById("second-end").setAttribute("value", secondEnd);
     // move cursor to the regions's start
     wavesurfer.seekTo(region["start"] / wavesurfer.getDuration());
+
+    /* Functionality that I am not sure is good for the application.
+       Still, it's a working
+       audio-selection-extraction-into-a-new-wavesurfer tool.
 
     // Extract audio from region to create a new wavesurfer for the selection
     var originalBuffer = wavesurfer.backend.buffer;
@@ -94,7 +121,7 @@ function init() {
     wavesurferSelection.loadDecodedBuffer(newBuffer);
     wavesurferSelection.drawer.on("click", region => {
       focusedWavesurfer = wavesurferSelection;
-    });
+    });*/
   });
 
   document.getElementById("download-form").addEventListener("submit", e => {
@@ -139,10 +166,18 @@ function formatTime(time) {
 // utils for removing region
 function removeRegion() {
   wavesurfer.clearRegions();
-  wavesurferSelection.destroy();
   wavesurfer.seekTo(0);
   document.getElementById("minute-start").setAttribute("value", "00");
   document.getElementById("second-start").setAttribute("value", "00");
   document.getElementById("minute-end").setAttribute("value", "00");
   document.getElementById("second-end").setAttribute("value", "00");
+}
+
+var regionOut = e => {
+  wavesurfer.pause();
+  wavesurfer.seekTo(wavesurferRegion["start"] / wavesurfer.getDuration());
+};
+
+function inBetweenRegion(current) {
+  return current >= wavesurferRegion.start && current <= wavesurferRegion.end;
 }
