@@ -31,18 +31,19 @@
           <div id="wavesurfer-selection-timeline-wrapper"></div>
         </div>-->
         <button class="hidden" id="toggle-play">Play / Pause</button>
-        <button class="hidden" id="remove-region" onClick="removeRegion();">Supprimer la sélection</button>
         <form id="cut-form" class="hidden" method="post" action="/crop_and_download">
           <input name="media-name" id="media-name" type="hidden" value="" />
           <div id="inputs-start">
             Début
             <input class="timer-input" name="minute-start" id="minute-start" value="00" type="number" /> :
-            <input class="timer-input" name="second-start" id="second-start" value="00" type="number" />
+            <input class="timer-input" name="second-start" id="second-start" value="00" type="number" /> :
+            <input class="timer-input" name="millisecond-start" id="millisecond-start" value="00" type="number" />
           </div>
           <div id="inputs-end">
             Fin
             <input class="timer-input" name="minute-end" id="minute-end" value="00" type="number" /> :
-            <input class="timer-input" name="second-end" id="second-end" value="00" type="number" />
+            <input class="timer-input" name="second-end" id="second-end" value="00" type="number" /> :
+            <input class="timer-input" name="millisecond-end" id="millisecond-end" value="00" type="number" />
           </div>
           <input type="submit" id="submit" name="submit" value="Enregistrer la sélection" />
         </form>

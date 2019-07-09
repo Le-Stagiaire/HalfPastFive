@@ -61,21 +61,25 @@ class CropHandler(RequestHandler):
         start = [
             int(time) for time in [
                 self.get_argument('minute-start'),
-                self.get_argument('second-start')
+                self.get_argument('second-start'),
+                self.get_argument('millisecond-start')
             ]
         ]
         end = [
             int(time) for time in [
                 self.get_argument('minute-end'),
-                self.get_argument('second-end')
+                self.get_argument('second-end'),
+                self.get_argument('millisecond-end')
             ]
         ]
         # ffmpeg need a delay instead of a end position
         # ex : start = 0:15 and end = 1:45 means
         # we need to pass start = 0:15 and stop = 1:30 to ffmpeg
         ffmpeg_delay = []
-        timedelta_start = timedelta(minutes=start[0], seconds=start[1])
-        timedelta_end = timedelta(minutes=end[0], seconds=end[1])
+        timedelta_start = timedelta(
+            minutes=start[0], seconds=start[1], milliseconds=start[2])
+        timedelta_end = timedelta(
+            minutes=end[0], seconds=end[1], milliseconds=end[2])
         if timedelta_end == timedelta_start:
             self.write(json_encode('Pas de sélection'))
             self.finish()
@@ -83,9 +87,10 @@ class CropHandler(RequestHandler):
             self.write(json_encode('Stop avant start'))
             self.finish()
         timedelta_delay = timedelta_end - timedelta_start
-        ffmpeg_start = '%0.2d:%0.2d' % (start[0], start[1])
-        ffmpeg_delay = '%0.2d:%0.2d' % (
-            int(timedelta_delay.seconds / 60), timedelta_delay.seconds % 60)
+        ffmpeg_start = '%0.2d:%0.2d.%0.3d' % (start[0], start[1], start[2])
+        ffmpeg_delay = '%0.2d:%0.2d.%0.3d' % (
+            int(timedelta_delay.seconds / 60), timedelta_delay.seconds % 60,
+            round(timedelta_delay.microseconds / 1000))
 
         # get audio and crop-audio filenames
         audio_filename = self.get_argument('media-name')
