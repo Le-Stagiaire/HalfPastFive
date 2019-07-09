@@ -30,20 +30,23 @@ function init() {
   };
   document.body.onkeydown = function(e) {
     if (e.keyCode == 37 && wavesurferRegion) {
-      wavesurferRegion.onResize(-0.1 * wavesurfer.params.minPxPerSec, "start");
-      wavesurfer.seekTo(wavesurferRegion["start"] / wavesurfer.getDuration());
+      wavesurferRegion.onResize(-0.1, "start");
+      wavesurfer.fireEvent("region-update-end", wavesurferRegion);
     }
     if (e.keyCode == 39 && wavesurferRegion) {
-      wavesurferRegion.onResize(0.5);
+      wavesurferRegion.onResize(0.1);
+      wavesurfer.fireEvent("region-update-end", wavesurferRegion);
     }
   };
 
   wavesurfer.on("play", () => {
     let current = wavesurfer.getCurrentTime();
-    if (inBetweenRegion(current)) {
-      wavesurferRegion.on("out", regionOut);
-    } else {
-      wavesurfer.un("out");
+    if (wavesurferRegion) {
+      if (inBetweenRegion(current)) {
+        wavesurferRegion.on("out", regionOut);
+      } else {
+        wavesurferRegion.un("out");
+      }
     }
   });
 
@@ -55,13 +58,16 @@ function init() {
   };
 
   wavesurfer.on("seek", position => {
-    if (!inBetweenRegion(position * wavesurfer.getDuration())) {
-      wavesurfer.clearRegions();
+    if (
+      wavesurferRegion &&
+      !inBetweenRegion(position * wavesurfer.getDuration())
+    ) {
+      removeRegion();
     }
   });
 
   wavesurfer.on("region-created", region => {
-    wavesurfer.clearRegions();
+    removeRegion();
   });
 
   wavesurfer.on("region-update-end", region => {
@@ -69,12 +75,18 @@ function init() {
     wavesurferRegion = region;
     const start = formatTime(region["start"]);
     const end = formatTime(region["end"]);
-    const [minuteStart, secondStart] = start.split(":");
-    const [minuteEnd, secondEnd] = end.split(":");
+    const [minuteStart, secondStart, millisecondStart] = start.split(":");
+    const [minuteEnd, secondEnd, millisecondEnd] = end.split(":");
     document.getElementById("minute-start").setAttribute("value", minuteStart);
     document.getElementById("second-start").setAttribute("value", secondStart);
+    document
+      .getElementById("millisecond-start")
+      .setAttribute("value", millisecondStart);
     document.getElementById("minute-end").setAttribute("value", minuteEnd);
     document.getElementById("second-end").setAttribute("value", secondEnd);
+    document
+      .getElementById("millisecond-end")
+      .setAttribute("value", millisecondEnd);
     // move cursor to the regions's start
     wavesurfer.seekTo(region["start"] / wavesurfer.getDuration());
 
@@ -159,18 +171,21 @@ function init() {
 function formatTime(time) {
   return [
     Math.floor((time % 3600) / 60), // minutes
-    ("00" + Math.floor(time % 60)).slice(-2) // seconds
+    Math.floor(time % 60), // seconds
+    (time % 1).toFixed(3).split(".")[1] // milliseconds
   ].join(":");
 }
 
 // utils for removing region
 function removeRegion() {
   wavesurfer.clearRegions();
-  wavesurfer.seekTo(0);
+  wavesurferRegion = null;
   document.getElementById("minute-start").setAttribute("value", "00");
   document.getElementById("second-start").setAttribute("value", "00");
+  document.getElementById("millisecond-start").setAttribute("value", "00");
   document.getElementById("minute-end").setAttribute("value", "00");
   document.getElementById("second-end").setAttribute("value", "00");
+  document.getElementById("millisecond-end").setAttribute("value", "00");
 }
 
 var regionOut = e => {
