@@ -137,8 +137,11 @@ function init() {
   });
 
   document.getElementById("download-form").addEventListener("submit", e => {
-    document.getElementById("loading").classList.remove("hidden");
+    if (!document.getElementById("url").value) {
+      return;
+    }
     e.preventDefault();
+    document.getElementById("loading").classList.remove("hidden");
     const xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -150,6 +153,7 @@ function init() {
         wavesurfer.load("/" + response._filename);
         document.getElementById("loading").className = "hidden";
         document.getElementById("video-title").textContent = response.title;
+        document.getElementById("crop-title").value = `${response.title}_cut`;
         // Create thumbnail
         if (document.getElementById("video-thumbnail")) {
           document
