@@ -2,11 +2,20 @@
   <head>
     <meta charset="utf-8" />
     <title>Half Past Five</title>
-    <script language="javascript" src="../static/wavesurfer.js/wavesurfer.min.js"></script>
-    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.regions.min.js"></script>
-    <script language="javascript" src="../static/wavesurfer.js/plugin/wavesurfer.timeline.min.js"></script>
+    <script
+      language="javascript"
+      src="../static/wavesurfer.js/wavesurfer.min.js"
+    ></script>
+    <script
+      language="javascript"
+      src="../static/wavesurfer.js/plugin/wavesurfer.regions.min.js"
+    ></script>
+    <script
+      language="javascript"
+      src="../static/wavesurfer.js/plugin/wavesurfer.timeline.min.js"
+    ></script>
     <script language="javascript" src="../static/js/main.js"></script>
-    <link rel="stylesheet" type="text/css" href="../static/css/main.css"></link>
+    <link rel="stylesheet" type="text/css" href="../static/css/main.css" />
   </head>
 
   <body onload="init();">
@@ -16,13 +25,24 @@
     <main>
       <section id="main">
         <form id="download-form" method="post">
-          <input id="url" name="url" value="" placeholder="Coller ici le lien" />
-          <input type="submit" value="Valider">
+          <input
+            id="url"
+            name="url"
+            value=""
+            placeholder="Coller ici le lien"
+          />
+          <input type="submit" value="Valider" />
         </form>
         <div id="video-infos">
           <span id="video-title"></span>
-          <a id="video-link" target="_blank"><img id="video-thumbnail" src="" /></a>
+          <a id="video-link" target="_blank"></a>
         </div>
+        <img
+          id="loading"
+          src="../static/loading.gif"
+          alt="loading"
+          class="hidden"
+        />
         <div id="wavesurfer-wrapper"></div>
         <div id="wavesurfer-timeline-wrapper"></div>
         <!--<div id="wavesurfer-selection" class="hidden">
@@ -30,23 +50,75 @@
           <div id="wavesurfer-selection-wrapper"></div>
           <div id="wavesurfer-selection-timeline-wrapper"></div>
         </div>-->
-        <button class="hidden" id="toggle-play">Play / Pause</button>
-        <form id="cut-form" class="hidden" method="post" action="/crop_and_download">
-          <input name="media-name" id="media-name" type="hidden" value="" />
-          <div id="inputs-start">
-            Début
-            <input class="timer-input" name="minute-start" id="minute-start" value="00" type="number" /> :
-            <input class="timer-input" name="second-start" id="second-start" value="00" type="number" /> :
-            <input class="timer-input" name="millisecond-start" id="millisecond-start" value="00" type="number" />
-          </div>
-          <div id="inputs-end">
-            Fin
-            <input class="timer-input" name="minute-end" id="minute-end" value="00" type="number" /> :
-            <input class="timer-input" name="second-end" id="second-end" value="00" type="number" /> :
-            <input class="timer-input" name="millisecond-end" id="millisecond-end" value="00" type="number" />
-          </div>
-          <input type="submit" id="submit" name="submit" value="Enregistrer la sélection" />
-        </form>
+        <div id="crop-interface">
+          <button class="hidden" id="toggle-play">Play / Pause</button>
+          <form
+            id="cut-form"
+            class="hidden"
+            method="post"
+            action="/crop_and_download"
+          >
+            <input name="media-name" id="media-name" type="hidden" value="" />
+            <div id="inputs-start">
+              Début
+              <input
+                class="timer-input"
+                name="minute-start"
+                id="minute-start"
+                value="00"
+                type="number"
+              />
+              :
+              <input
+                class="timer-input"
+                name="second-start"
+                id="second-start"
+                value="00"
+                type="number"
+              />
+              :
+              <input
+                class="timer-input"
+                name="millisecond-start"
+                id="millisecond-start"
+                value="00"
+                type="number"
+              />
+            </div>
+            <div id="inputs-end">
+              Fin
+              <input
+                class="timer-input"
+                name="minute-end"
+                id="minute-end"
+                value="00"
+                type="number"
+              />
+              :
+              <input
+                class="timer-input"
+                name="second-end"
+                id="second-end"
+                value="00"
+                type="number"
+              />
+              :
+              <input
+                class="timer-input"
+                name="millisecond-end"
+                id="millisecond-end"
+                value="00"
+                type="number"
+              />
+            </div>
+            <input
+              type="submit"
+              id="submit"
+              name="submit"
+              value="Enregistrer la sélection"
+            />
+          </form>
+        </div>
       </section>
     </main>
   </body>

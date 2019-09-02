@@ -137,6 +137,7 @@ function init() {
   });
 
   document.getElementById("download-form").addEventListener("submit", e => {
+    document.getElementById("loading").classList.remove("hidden");
     e.preventDefault();
     const xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/", true);
@@ -147,14 +148,23 @@ function init() {
       if (xhttp.readyState == 4 && xhttp.status == 200) {
         const response = JSON.parse(xhttp.response);
         wavesurfer.load("/" + response._filename);
+        document.getElementById("loading").className = "hidden";
         document.getElementById("video-title").textContent = response.title;
-        document
-          .getElementById("video-thumbnail")
-          .setAttribute("src", response.thumbnail);
+        // Create thumbnail
+        if (document.getElementById("video-thumbnail")) {
+          document
+            .getElementById("video-thumbnail")
+            .setAttribute("src", response.thumbnail);
+        } else {
+          const thumbnail = document.createElement("img");
+          thumbnail.setAttribute("id", "video-thumbnail");
+          thumbnail.setAttribute("src", response.thumbnail);
+          document.getElementById("video-link").appendChild(thumbnail);
+        }
         document
           .getElementById("video-link")
           .setAttribute("href", response.webpage_url);
-        document.querySelectorAll(".hidden").forEach(el => {
+        document.querySelectorAll("#crop-interface > .hidden").forEach(el => {
           el.classList.remove("hidden");
         });
         document
