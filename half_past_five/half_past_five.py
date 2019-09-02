@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from datetime import timedelta
 from logging import getLogger
 from tornado.web import Application, RequestHandler, url as hpf_url
@@ -7,14 +9,17 @@ import json
 import os
 import subprocess
 import tornado.ioloop
+import webbrowser
 
 log = getLogger('half_past_five')
 
 log.setLevel(20)
 
 server = Application(
-    static_path=os.path.join(os.path.dirname(__file__), "static"),
-    template_path=os.path.join(os.path.dirname(__file__), "templates"),
+    static_path=os.path.join(
+        os.path.dirname(__file__), "..", "static"),
+    template_path=os.path.join(
+        os.path.dirname(__file__), "..", "templates"),
     debug=True)
 
 # wdb_tornado(server, start_disabled=True)
@@ -44,7 +49,7 @@ class MainHandler(RequestHandler):
         self.set_header('Content-Type', 'application/json')
         url = self.get_argument('url', '')
         download_path = os.path.join(
-            'static', 'downloads', '%(title)s.%(ext)s')
+            server.settings['static_path'], 'downloads', '%(title)s.%(ext)s')
         out = subprocess.run(
             ['youtube-dl', url, '-f', '140', '-o', download_path,
              '--print-json'], stdout=subprocess.PIPE)
@@ -72,7 +77,7 @@ class CropHandler(RequestHandler):
                 self.get_argument('millisecond-end')
             ]
         ]
-        # ffmpeg need a delay instead of a end position
+        # ffmpeg need a duration instead of a end position
         # ex : start = 0:15 and end = 1:45 means
         # we need to pass start = 0:15 and stop = 1:30 to ffmpeg
         ffmpeg_delay = []
@@ -119,4 +124,5 @@ class CropHandler(RequestHandler):
 if __name__ == "__main__":
     app = server
     app.listen(8888)
+    webbrowser.open('http://localhost:8888')
     tornado.ioloop.IOLoop.current().start()
