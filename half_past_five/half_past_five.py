@@ -19,8 +19,8 @@ server = Application(
     static_path=os.path.join(
         os.path.dirname(__file__), "..", "static"),
     template_path=os.path.join(
-        os.path.dirname(__file__), "..", "templates"),
-    debug=True)
+        os.path.dirname(__file__), "..", "templates")
+)
 
 # wdb_tornado(server, start_disabled=True)
 
@@ -47,6 +47,11 @@ class MainHandler(RequestHandler):
 
     def post(self):
         self.set_header('Content-Type', 'application/json')
+        download_destination_folder = os.path.join(
+            server.settings['static_path'], 'downloads'
+        )
+        for unused_file in os.listdir(download_destination_folder):
+            os.remove(os.path.join(download_destination_folder, unused_file))
         url = self.get_argument('url', '')
         download_path = os.path.join(
             server.settings['static_path'], 'downloads', '%(title)s.%(ext)s')
@@ -99,24 +104,21 @@ class CropHandler(RequestHandler):
 
         # get audio and crop-audio filenames
         audio_filename = self.get_argument('media-name')
-        audio_title = audio_filename.split('.')[0]
+        audio_title = audio_filename.split('.m4a')[0]
         cut_filename = '{}_cut.{}'.format(audio_title, 'mp3')
-
+        # get filename chosen by the user
+        user_filename = f"{self.get_argument('crop-title')}.mp3"
         # crop the audio
         subprocess.run(
-            ['ffmpeg', '-i', audio_filename, '-ss', ffmpeg_start,
+            ['ffmpeg', '-y', '-i', audio_filename, '-ss', ffmpeg_start,
              '-t', ffmpeg_delay, '-codec:a', 'libmp3lame', '-qscale:a', '3',
              cut_filename])
 
         with open(cut_filename, "rb") as f:
             song = f.read()
-        os.remove(audio_filename)
-        os.remove(cut_filename)
         self.set_header('Content-Type', 'audio/mpeg')
         self.set_header(
-            'Content-Disposition', 'attachment; filename=%s' % (
-                cut_filename[len('static/downloads/'):]
-            )
+            'Content-Disposition', f'attachment; filename={user_filename}'
         )
         self.write(song)
 
