@@ -50,6 +50,8 @@ class MainHandler(RequestHandler):
         download_destination_folder = os.path.join(
             server.settings['static_path'], 'downloads'
         )
+        if not os.path.isdir(download_destination_folder):
+            os.makedirs(download_destination_folder)
         for unused_file in os.listdir(download_destination_folder):
             os.remove(os.path.join(download_destination_folder, unused_file))
         url = self.get_argument('url', '')
