@@ -68,6 +68,9 @@ function init() {
 
   wavesurfer.on("region-created", region => {
     removeRegion();
+    document
+      .querySelectorAll(".field-error")
+      .forEach(el => (el.textContent = ""));
   });
 
   wavesurfer.on("region-update-end", region => {
@@ -179,6 +182,37 @@ function init() {
 
     xhttp.send(params);
   });
+
+  document.getElementById("crop-form").addEventListener("submit", e => {
+    if (
+      JSON.stringify(getDuration("start")) == JSON.stringify(getDuration("end"))
+    ) {
+      document
+        .querySelectorAll(".field-error")
+        .forEach(el => (el.textContent = "Pas de sélection"));
+      e.preventDefault();
+      return;
+    }
+    const start = getDuration("start");
+    const end = getDuration("end");
+    if (start[0] > end[0]) {
+      document
+        .querySelectorAll(".field-error")
+        .forEach(el => (el.textContent = "Fin avant début"));
+      e.preventDefault();
+    } else if (start[1] > end[1]) {
+      document
+        .querySelectorAll(".field-error")
+        .forEach(el => (el.textContent = "Fin avant début"));
+      e.preventDefault();
+    } else if (start[2] > end[2]) {
+      document
+        .querySelectorAll(".field-error")
+        .forEach(el => (el.textContent = "Fin avant début"));
+      e.preventDefault();
+      return;
+    }
+  });
 }
 
 // utils for formatting time gathered on region
@@ -209,4 +243,12 @@ var regionOut = e => {
 
 function inBetweenRegion(current) {
   return current >= wavesurferRegion.start && current <= wavesurferRegion.end;
+}
+
+function getDuration(type) {
+  const duration = [];
+  ["minute", "second", "millisecond"].forEach(prefix =>
+    duration.push(document.getElementById(`${prefix}-${type}`).value)
+  );
+  return duration;
 }

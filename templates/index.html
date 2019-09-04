@@ -52,7 +52,7 @@
         <div id="crop-interface">
           <button class="hidden" id="toggle-play">Play / Pause</button>
           <form
-            id="cut-form"
+            id="crop-form"
             class="hidden"
             method="post"
             action="/crop_and_download"
@@ -83,6 +83,7 @@
                 value="00"
                 type="number"
               />
+              <p class="field-error"></p>
             </div>
             <div id="inputs-end">
               Fin
@@ -109,6 +110,7 @@
                 value="00"
                 type="number"
               />
+              <p class="field-error"></p>
             </div>
             <input
               name="crop-title"
