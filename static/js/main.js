@@ -184,28 +184,15 @@ function init() {
   });
 
   document.getElementById("crop-form").addEventListener("submit", e => {
-    if (
-      JSON.stringify(getDuration("start")) == JSON.stringify(getDuration("end"))
-    ) {
+    const start = getDuration("start").join(":");
+    const end = getDuration("end").join(":");
+    if (start === end) {
       document
         .querySelectorAll(".field-error")
         .forEach(el => (el.textContent = "Pas de sélection"));
       e.preventDefault();
       return;
-    }
-    const start = getDuration("start");
-    const end = getDuration("end");
-    if (start[0] > end[0]) {
-      document
-        .querySelectorAll(".field-error")
-        .forEach(el => (el.textContent = "Fin avant début"));
-      e.preventDefault();
-    } else if (start[1] > end[1]) {
-      document
-        .querySelectorAll(".field-error")
-        .forEach(el => (el.textContent = "Fin avant début"));
-      e.preventDefault();
-    } else if (start[2] > end[2]) {
+    } else if (start > end) {
       document
         .querySelectorAll(".field-error")
         .forEach(el => (el.textContent = "Fin avant début"));
