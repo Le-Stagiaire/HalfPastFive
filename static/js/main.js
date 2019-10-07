@@ -184,8 +184,8 @@ function init() {
   });
 
   document.getElementById("crop-form").addEventListener("submit", e => {
-    const start = getDuration("start").join(":");
-    const end = getDuration("end").join(":");
+    const start = Date.parse(`01/01/1990 ${getDuration("start").join(":")}`);
+    const end = Date.parse(`01/01/1990 ${getDuration("end").join(":")}`);
     if (start === end) {
       document
         .querySelectorAll(".field-error")
