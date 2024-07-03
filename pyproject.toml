@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "halfpastfive"
+version = "0.1.0"
+description = "Isolate and extract audio from youtube"
+authors = ["Le-Stagiaire <clement.plasse.lyon@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+tornado = "^6.4.1"
+yt-dlp = "^2024.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
