@@ -11,6 +11,9 @@ tornado = "^6.4.1"
 yt-dlp = "^2024.7.2"
 
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
