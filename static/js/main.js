@@ -153,7 +153,8 @@ function init() {
     xhttp.onreadystatechange = () => {
       if (xhttp.readyState == 4 && xhttp.status == 200) {
         const response = JSON.parse(xhttp.response);
-        wavesurfer.load("/" + response._filename);
+        console.log(response._filename);
+        wavesurfer.load(response._filename.split("..").at(-1));
         document.getElementById("loading").className = "hidden";
         document.getElementById("video-title").textContent = response.title;
         document.getElementById("crop-title").value = `${response.title}_cut`;

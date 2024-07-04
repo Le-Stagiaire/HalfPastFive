@@ -38,10 +38,24 @@ class url(object):
                 cls.__name__ + self.suffix)),)
         )
         return cls
+    
+
+class BaseHandler(tornado.web.RequestHandler):
+
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header('Access-Control-Allow-Methods', ' PUT, DELETE, OPTIONS')
+
+    def options(self):
+        # no body
+        self.set_status(204)
+        self.finish()
 
 
 @url(r'/')
-class MainHandler(RequestHandler):
+class MainHandler(BaseHandler):
+
     def get(self):
         self.render("index.html")
 
@@ -58,7 +72,7 @@ class MainHandler(RequestHandler):
         download_path = os.path.join(
             server.settings['static_path'], 'downloads', '%(title)s.%(ext)s')
         out = subprocess.run(
-            ['youtube-dl', url, '-f', '140', '-o', download_path,
+            ['yt-dlp', url, '-f', '140', '-o', download_path,
              '--print-json'], stdout=subprocess.PIPE)
         out = json.loads(out.stdout.decode('utf-8'))
         self.write(out)
@@ -66,7 +80,7 @@ class MainHandler(RequestHandler):
 
 
 @url(r'/crop_and_download')
-class CropHandler(RequestHandler):
+class CropHandler(BaseHandler):
 
     def post(self):
         # Extract start and end from form params
